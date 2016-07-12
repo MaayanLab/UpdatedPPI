@@ -1,0 +1,88 @@
+Generating PPI Network Files -
+
+Scripts are found in ppi.py
+The purpose of these scripts is to generate the "background" files that contain
+protein-protein interactions on each line. The scripts work for human as well
+as mouse data.
+
+Usage: 
+
+1) Download a file from PSICQUIC 
+(http://www.ebi.ac.uk/Tools/webservices/psicquic/view/main.xhtml)
+
+The MINT, innateDB, DIP, IntAct and Biogrid are fully supported,
+similarly structured other ones may work as well.
+
+2) Next, it's important to check what type of gene symbols are stored in the
+PSCIQUIC file - the two which are currently supported are Uniprot IDs and 
+Entrez Gene IDs. This will decide which of the two conversion functions/files
+you will use.
+
+3) It's also important to check in what field the gene symbols reside. This
+will decide which getInteractors function you will use. 
+
+Pre-canned versions of the function are made for each of the MINT, DIP, IntAct,
+and Biogrid databases and are found at the bottom of the file. 
+These functions are as follows:
+
+runMINT(), runInnateDB(), runDIP(), runIntAct(), runBioGrid()
+Each of them requires a file named after the dataset (e.g. MINT.txt) to be
+present in the same directory as the script to run properly.
+
+Otherwise, you may want to run the script on your own to customize the various
+input files. That works as follows:
+
+outputList, errorList = processPSICQUIC(convertLoadFn,
+										filename,
+										mouse_file,
+										human_file,
+										homologene_file,
+										getInteractors,
+										getSpecies,
+										convertID,
+										additionalInfoFn = None)
+
+convertLoadFn - function to load in the conversion files, depends on symbol type
+filename - the PSICQUIC file you wish to parse
+mouse_file - gene symbol conversions for mice
+human_file - gene symbol conversions for humans
+homologene_file - NCBI homologene conversion file from mouse genes to human ones
+getInteractors - function to get interactor names from a line in the PPI file
+getSpecies - function to get species names from a line in the PPI file
+convertID - function to convert Gene IDs, depends on symbol type
+additionalInfoFn - only currently used for IntAct, usually None
+
+Options - 
+
+convertLoadFn: 
+	loadEntrez (used for Entrez Gene IDs)
+	loadUniprot (used for Uniprot Gene IDs)
+
+getInteractors:
+	mintInteractors (works for MINT dataset and many others - most general one)
+	innateDBInteractors (works for innateDB dataset)
+	barInteractors (works for BAR dataset)
+	bioGridInteractors (works for BioGrid dataset)
+	intActInteractors (works for IntAct dataset) 
+
+getSpecies:
+	getSpecies (works for everything)
+
+convertID:
+	uniprotConvert (works for Uniprot Gene IDs)
+	entrezGeneConvert (works for Entrez Gene IDs)
+
+additionalInfoFn:
+	interactionType 
+
+
+4) If you want to remove high throughput studies, you can use the function 
+removeHighThroughput(ppi_list, thresh). Using your outputList as an argument
+as well as the threshold for the minimum number of interactions in a study to
+be considered high throughput, you can eliminate all such studies. 
+This is present in all the pre-canned functions with a threshold of 10, 
+but is available as an option to the user if running the scripts on your own.
+
+5) writePPI(ppi_list, output_filename) will just write your outputList to a 
+text file of your desired name. 
+
